@@ -67,8 +67,6 @@ var cognitoTokenParam = function(email) {
 }
 
 exports.refresh = function(req,res) {
-    res.send(req.sessionID+'\n'+req.session.em+'\n'+req.session.cookie);
-    /*
     if (req.session && req.session.em) {
         cognitoidentity.getOpenIdTokenForDeveloperIdentity(new cognitoTokenParam(req.session.em),function(err, data) { 
             if (err) {
@@ -82,7 +80,6 @@ exports.refresh = function(req,res) {
     else {
         res.status(307).send({rdt: 'ULG'}); //redirect to user login
     }
-    */
 }
 
 exports.login = function(req,res) {
