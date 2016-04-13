@@ -85,7 +85,7 @@ exports.refresh = function(req,res) {
 exports.login = function(req,res) {
     dynamodb.getItem(new getParam(req.body.em),function(err,data) {
         if (err) {
-            res.status(500).send({err: errorDic['AWSGetItem']});
+            res.status(500).send(err);//{err: errorDic['AWSGetItem']}
         }
         else {
             if (Object.keys(data).length !== 0) {

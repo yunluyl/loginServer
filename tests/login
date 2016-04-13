@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$#" -gt 1 ]
 then
-	curl -D ./headers.txt -c ./cookies.txt -H "Content-Type: application/json" -d '{"em":"'"$1"'","pw":"'"$2"'"}' http://localhost:3000/login
+	curl -D ./headers.txt -c ./cookies.txt -H "Content-Type: application/json" -d '{"em":"'"$1"'","pw":"'"$2"'"}' https://warm-dawn-55982.herokuapp.com/login
 else
 	echo "login needs email address and password as arguments"
 fi

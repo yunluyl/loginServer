@@ -1,2 +1,2 @@
 #!/bin/bash
-curl -b ./cookies.txt -c ./cookies.txt -X POST http://localhost:3000/refresh
+curl -b ./cookies.txt -c ./cookies.txt -X POST https://warm-dawn-55982.herokuapp.com/refresh
