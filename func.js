@@ -132,13 +132,11 @@ exports.signup = function(req,res) {
                 if (err.code === "ConditionalCheckFailedException") {
                     res.status(400).send({err: errorDic['userExist']});
                 }
-                /*
                 else if (err) {
                     res.status(500).send({err: errorDic['AWSPutItem']});
                 }
-                */
                 else {
-                    res.status(200).send(); //signup sccessful
+                    res.status(200).send({}); //signup sccessful
                 }
             });
         }
