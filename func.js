@@ -67,7 +67,7 @@ var cognitoTokenParam = function(email) {
 }
 
 exports.refresh = function(req,res) {
-    res.send(req.cookies);
+    res.send(req.session.cookie);
     /*
     if (req.session && req.session.em) {
         cognitoidentity.getOpenIdTokenForDeveloperIdentity(new cognitoTokenParam(req.session.em),function(err, data) { 
