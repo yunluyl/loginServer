@@ -136,7 +136,7 @@ exports.signup = function(req,res) {
                     res.status(500).send({err: errorDic['AWSPutItem']});
                 }
                 else {
-                    res.status(200).send(); //signup sccessful
+                    res.status(200).send({}); //signup sccessful
                 }
             });
         }
