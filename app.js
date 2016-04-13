@@ -25,9 +25,9 @@ app.set('trust proxy', 1);
 app.use(session({
                 secret: 'kyocsf4',
                 saveUninitialized: false,
-                resave: false,
+                resave: true,
                 rolling: true,
-                cookie: {secure: true, maxAge: 604800},
+                cookie: {secure: true, maxAge: 604800000},
                 store: new DynamoDBStore({
                                         client: new AWS.DynamoDB(),
                                         AWSRegion: 'us-east-1',
