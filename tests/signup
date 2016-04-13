@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$#" -gt 1 ]
 then
-	curl -X PUT -H "Content-Type: application/json" -d '{"em":"'"$1"'","pw":"'"$2"'"}' https://warm-dawn-55982.herokuapp.com/signup
+	curl -X PUT -H "Content-Type: application/json" -d '{"em":"'"$1"'","pw":"'"$2"'"}' https://foodloginserver.herokuapp.com/signup
 else
 	echo "signup needs email address and password as arguments"
 fi
