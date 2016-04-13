@@ -2,7 +2,6 @@
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var session = require('express-session');
@@ -32,7 +31,7 @@ app.use(session({
                                         client: new AWS.DynamoDB(),
                                         AWSRegion: 'us-east-1',
                                         table: 'sessions',
-                                        reapInterval: 600000
+                                        reapInterval: 6000
                         })
             }));
 
