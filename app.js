@@ -21,6 +21,7 @@ app.use(logger('combined'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(methodOverride('X-HTTP-Method-Override'));
+app.set('trust proxy', 1);
 app.use(session({
                 secret: 'kyocsf4',
                 saveUninitialized: false,
