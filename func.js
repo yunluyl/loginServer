@@ -129,11 +129,13 @@ exports.signup = function(req,res) {
         }
         else {
             dynamodb.putItem(new putParam(req.body.em, hash), function(err, data) {
-                if (err.code === "ConditionalCheckFailedException") {
-                    res.status(400).send({err: errorDic['userExist']});
-                }
-                else if (err) {
-                    res.status(500).send({err: errorDic['AWSPutItem']});
+                if (err) {
+                    if (err.code === "ConditionalCheckFailedException") {
+                        res.status(400).send({err: errorDic['userExist']});
+                    }
+                    else {
+                        res.status(500).send({err: errorDic['AWSPutItem']});
+                    }
                 }
                 else {
                     res.status(200).send(); //signup sccessful
