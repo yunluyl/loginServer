@@ -1,2 +1,2 @@
 #!/bin/bash
-curl -b ./cookies.txt -c ./cookies.txt -X POST https://foodloginserver.herokuapp.com/refresh
+curl -b /cookies.txt -c ./cookies.txt -X POST https://foodloginserver.herokuapp.com/refresh

@@ -1,9 +1,12 @@
 HTTP/1.1 200 OK
+Server: Cowboy
+Connection: keep-alive
 X-Powered-By: Express
 Vary: X-HTTP-Method-Override
 Content-Type: application/json; charset=utf-8
 Content-Length: 876
-ETag: W/"36c-E436WtbcWNrZWLYiPBhRIQ"
-Date: Wed, 13 Apr 2016 14:13:23 GMT
-Connection: keep-alive
+Etag: W/"36c-zJqA967TfkiC9zwsE87oqA"
+Set-Cookie: connect.sid=s%3AvoNIszVt1xyRkos_U7kFIGNBkXb-7IoZ.isR79kakJGdME7fKFUznnHZatf6HGqBLKoU8gd%2B%2F9Wg; Path=/; Expires=Wed, 13 Apr 2016 15:34:08 GMT; HttpOnly; Secure
+Date: Wed, 13 Apr 2016 15:24:03 GMT
+Via: 1.1 vegur
 
