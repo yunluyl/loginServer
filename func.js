@@ -13,7 +13,7 @@ var errorDic = {
     wrongPassword:'WPW',
     getTokenErr:'GTE',
     userExist:'URE',
-    error7:'error7 occurred',
+    AWSPutItem:'API',
     error8:'error8 occurred',
     error9:'error9 occurred',
     error10:'error10 occurred',
@@ -129,8 +129,11 @@ exports.signup = function(req,res) {
         }
         else {
             dynamodb.putItem(new putParam(req.body.em, hash), function(err, data) {
-                if (err) {
-                    res.status(500).send(err);
+                if (err.code === "ConditionalCheckFailedException") {
+                    res.status(400).send({err: errorDic['userExist']});
+                }
+                else if (err) {
+                    res.status(500).send({err: errorDic['AWSPutItem']});
                 }
                 else {
                     res.status(200).send(); //signup sccessful
