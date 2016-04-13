@@ -26,12 +26,12 @@ app.use(session({
                 saveUninitialized: false,
                 resave: true,
                 rolling: true,
-                cookie: {secure: true, maxAge: 30000},
+                cookie: {secure: true, maxAge: 604800000},
                 store: new DynamoDBStore({
                                         client: new AWS.DynamoDB(),
                                         AWSRegion: 'us-east-1',
                                         table: 'sessions',
-                                        reapInterval: 6000
+                                        reapInterval: 0
                         })
             }));
 
