@@ -1,14 +1,3 @@
-module.exports = consts;
-module.exports.errorDic = errorDic;
-module.exports.awsApiVersion = awsApiVersion;
-module.exports.putParam = putParam;
-module.exports.getParam = getParam;
-module.exports.editParam = editParam;
-module.exports.cognitoTokenParam = cognitoTokenParam;
-module.exports.smtpConfig = smtpConfig;
-module.exports.activationEmail = activationEmail;
-module.exports.resetEmail = resetEmail;
-
 var consts = {
     saltRounds : 10,
     authTableName : 'urs',
@@ -115,3 +104,14 @@ var cognitoTokenParam = function(email) {
     };
     this.TokenDuration = consts.awsTokenDuration;
 }
+
+module.exports = consts;
+module.exports.errorDic = errorDic;
+module.exports.awsApiVersion = awsApiVersion;
+module.exports.putParam = putParam;
+module.exports.getParam = getParam;
+module.exports.editParam = editParam;
+module.exports.cognitoTokenParam = cognitoTokenParam;
+module.exports.smtpConfig = smtpConfig;
+module.exports.activationEmail = activationEmail;
+module.exports.resetEmail = resetEmail;
