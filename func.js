@@ -14,7 +14,7 @@ var errorDic = {
     getTokenErr:'GTE',
     userExist:'URE',
     AWSPutItem:'API',
-    error8:'error8 occurred',
+    wrongSignature:'WSG',
     error9:'error9 occurred',
     error10:'error10 occurred',
 };
@@ -83,64 +83,88 @@ exports.refresh = function(req,res) {
 }
 
 exports.login = function(req,res) {
-    dynamodb.getItem(new getParam(req.body.em),function(err,data) {
+    bcrypt.compare(req.body.sg,'$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre', function(err,comResult) {
         if (err) {
-            res.status(500).send(err);//{err: errorDic['AWSGetItem']}
+            res.status(500).send({err: errorDic['bcryptErr']});
         }
         else {
-            if (Object.keys(data).length !== 0) {
-                if (data.Item.hasOwnProperty('rp')) {
-                    res.status(307).send({rdt: 'RSP'}); //redirect to reset password
-                }
-                else {
-                    bcrypt.compare(req.body.pw,data.Item.ph.S,function(err,comResult) {
-                        if (err) {
-                            res.status(500).send({err: errorDic['bcryptErr']});
-                        }
-                        else {
-                            if (comResult) {
-                                cognitoidentity.getOpenIdTokenForDeveloperIdentity(new cognitoTokenParam(req.body.em),function(err, data) { if (err) {
-                                        res.status(500).send({err: errorDic['getTokenErr']});
+            if (comResult) {
+                dynamodb.getItem(new getParam(req.body.em),function(err,data) {
+                    if (err) {
+                        res.status(500).send(err);//{err: errorDic['AWSGetItem']}
+                    }
+                    else {
+                        if (Object.keys(data).length !== 0) {
+                            if (data.Item.hasOwnProperty('rp')) {
+                                res.status(307).send({rdt: 'RSP'}); //redirect to reset password
+                            }
+                            else {
+                                bcrypt.compare(req.body.pw,data.Item.ph.S,function(err,comResult) {
+                                    if (err) {
+                                        res.status(500).send({err: errorDic['bcryptErr']});
                                     }
                                     else {
-                                        req.session.em = req.body.em;
-                                        res.status(200).send({AWSToken: data.Token});
+                                        if (comResult) {
+                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new cognitoTokenParam(req.body.em),function(err, data) { if (err) {
+                                                    res.status(500).send({err: errorDic['getTokenErr']});
+                                                }
+                                                else {
+                                                    req.session.em = req.body.em;
+                                                    res.status(200).send({AWSToken: data.Token});
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            res.status(401).send({err: errorDic['wrongPassword']});
+                                        }
                                     }
                                 });
                             }
-                            else {
-                                res.status(401).send({err: errorDic['wrongPassword']});
-                            }
                         }
-                    });
-                }
+                        else {
+                            res.status(401).send({err: errorDic['userNotExist']});
+                        }
+                    }
+                });
             }
             else {
-                res.status(401).send({err: errorDic['userNotExist']});
+                res.status(401).send({err: errorDic['wrongSignature']});
             }
         }
     });
 }
 
 exports.signup = function(req,res) {
-    bcrypt.hash(req.body.pw, saltRounds, function(err, hash) {
+    bcrypt.compare(req.body.sg,'$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre', function(err,comResult) {
         if (err) {
             res.status(500).send({err: errorDic['bcryptErr']});
         }
         else {
-            dynamodb.putItem(new putParam(req.body.em, hash), function(err, data) {
-                if (err) {
-                    if (err.code === "ConditionalCheckFailedException") {
-                        res.status(400).send({err: errorDic['userExist']});
+            if (comResult) {
+                bcrypt.hash(req.body.pw, saltRounds, function(err, hash) {
+                    if (err) {
+                        res.status(500).send({err: errorDic['bcryptErr']});
                     }
                     else {
-                        res.status(500).send({err: errorDic['AWSPutItem']});
+                        dynamodb.putItem(new putParam(req.body.em, hash), function(err, data) {
+                            if (err) {
+                                if (err.code === "ConditionalCheckFailedException") {
+                                    res.status(400).send({err: errorDic['userExist']});
+                                }
+                                else {
+                                    res.status(500).send({err: errorDic['AWSPutItem']});
+                                }
+                            }
+                            else {
+                                res.status(200).send(); //signup sccessful
+                            }
+                        });
                     }
-                }
-                else {
-                    res.status(200).send(); //signup sccessful
-                }
-            });
+                });
+            }
+            else {
+                res.status(401).send({err: errorDic['wrongSignature']});
+            }
         }
     });
 }
