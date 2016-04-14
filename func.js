@@ -99,7 +99,7 @@ exports.signup = function(req,res) {
                                     res.status(400).send({err: config.errorDic['userExist']});
                                 }
                                 else {
-                                    res.status(500).send({err: config.errorDic['AWSPutItem']});
+                                    res.status(500).send(err);//{err: config.errorDic['AWSPutItem']}
                                 }
                             }
                             else {
