@@ -103,9 +103,9 @@ exports.signup = function(req,res) {
                                 }
                             }
                             else {
-                                transporter.sendMail(new config.activationEmail(req.body.em,token), function(err,info) {
-                                    if (err) {
-                                        res.status(500).send(err); //signup finished, but send email failed, need to resend activation email {err: config.errorDic['sendEmailErr']}
+                                transporter.sendMail(new config.activationEmail(req.body.em,token), function(error,info) {
+                                    if (error) {
+                                        res.status(500).send(error); //signup finished, but send email failed, need to resend activation email {err: config.errorDic['sendEmailErr']}
                                     }
                                     else {
                                         res.status(200).send(); //signup sccessful
