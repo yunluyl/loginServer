@@ -1,76 +1,21 @@
 var AWS = require('aws-sdk');
 var bcrypt = require('bcryptjs');
+var nodemailer = require('nodemailer');
+var uuid = require('node-uuid');
+var config = require('./config');
 //Constants
-AWS.config.region = 'us-east-1';
-AWS.config.apiVersion = {
-    cognitoidentity: '2014-06-30',
-    dynamodb: '2012-08-10'
-};
-var errorDic = {
-    AWSGetItem:'AGI',
-    userNotExist:'UNE',
-    bcryptErr:'BCE',
-    wrongPassword:'WPW',
-    getTokenErr:'GTE',
-    userExist:'URE',
-    AWSPutItem:'API',
-    wrongSignature:'WSG',
-    error9:'error9 occurred',
-    error10:'error10 occurred',
-};
+AWS.config.region = config.awsRegion;
+AWS.config.apiVersion = config.wsApiVersion;
+
 var cognitoidentity = new AWS.CognitoIdentity();
 var dynamodb = new AWS.DynamoDB();
-const saltRounds = 10;
-const authTableName = 'urs';
-
-//Object definition
-var putParam = function(email,passwordHash) {
-    this.TableName = authTableName;
-    this.Item = {
-        'em':{S:email},
-        'ph':{S:passwordHash}
-    };
-    this.ConditionExpression = 'attribute_not_exists(em)';
-}
-
-var getParam = function(email/*,ProjectionExpression1,ProjectionExpression2,...*/) {
-    this.TableName = authTableName;
-    this.Key = {
-        'em':{S:arguments[0]}
-    };
-    if (arguments.length > 1) {
-        this.ProjectionExpression = arguments[1];
-        for (var i=2;i<arguments.length;i++) {
-            this.ProjectionExpression += (','+arguments[i]);
-        }
-    }
-}
-
-var editParam = function(email,passwordHash,rstPass) {
-    this.TableName = authTableName;
-    this.Item = {
-        'em':{S:email},
-        'ph':{S:passwordHash},
-    };
-    if (rstPass) {
-        this.Item['rp'] = {BOOL:true};
-    }
-    this.ConditionExpression = 'attribute_exists(em)';
-}
-
-var cognitoTokenParam = function(email) {
-    this.IdentityPoolId = 'us-east-1:2ed0d413-562a-43db-b273-222585ff568d';
-    this.Logins = {
-        'login.test.developerLogin': email
-    };
-    this.TokenDuration = 3600;
-}
+var transporter = nodemailer.createTransport(config.smtpConfig);
 
 exports.refresh = function(req,res) {
     if (req.session && req.session.em) {
-        cognitoidentity.getOpenIdTokenForDeveloperIdentity(new cognitoTokenParam(req.session.em),function(err, data) { 
+        cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.session.em),function(err, data) { 
             if (err) {
-                res.status(500).send({err: errorDic['getTokenErr']});
+                res.status(500).send({err: config.errorDic['getTokenErr']});
             }
             else {
                 res.status(200).send({AWSToken: data.Token});
@@ -83,15 +28,15 @@ exports.refresh = function(req,res) {
 }
 
 exports.login = function(req,res) {
-    bcrypt.compare(req.body.sg,'$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre', function(err,comResult) {
+    bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err,comResult) {
         if (err) {
-            res.status(500).send({err: errorDic['bcryptErr']});
+            res.status(500).send({err: config.errorDic['bcryptErr']});
         }
         else {
             if (comResult) {
-                dynamodb.getItem(new getParam(req.body.em),function(err,data) {
+                dynamodb.getItem(new config.getParam(req.body.em),function(err,data) {
                     if (err) {
-                        res.status(500).send(err);//{err: errorDic['AWSGetItem']}
+                        res.status(500).send({err: config.errorDic['AWSGetItem']});
                     }
                     else {
                         if (Object.keys(data).length !== 0) {
@@ -101,12 +46,12 @@ exports.login = function(req,res) {
                             else {
                                 bcrypt.compare(req.body.pw,data.Item.ph.S,function(err,comResult) {
                                     if (err) {
-                                        res.status(500).send({err: errorDic['bcryptErr']});
+                                        res.status(500).send({err: config.errorDic['bcryptErr']});
                                     }
                                     else {
                                         if (comResult) {
-                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new cognitoTokenParam(req.body.em),function(err, data) { if (err) {
-                                                    res.status(500).send({err: errorDic['getTokenErr']});
+                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err, data) { if (err) {
+                                                    res.status(500).send({err: config.errorDic['getTokenErr']});
                                                 }
                                                 else {
                                                     req.session.em = req.body.em;
@@ -115,62 +60,71 @@ exports.login = function(req,res) {
                                             });
                                         }
                                         else {
-                                            res.status(401).send({err: errorDic['wrongPassword']});
+                                            res.status(401).send({err: config.errorDic['wrongPassword']});
                                         }
                                     }
                                 });
                             }
                         }
                         else {
-                            res.status(401).send({err: errorDic['userNotExist']});
+                            res.status(401).send({err: config.errorDic['userNotExist']});
                         }
                     }
                 });
             }
             else {
-                res.status(401).send({err: errorDic['wrongSignature']});
+                res.status(401).send({err: config.errorDic['wrongSignature']});
             }
         }
     });
 }
 
 exports.signup = function(req,res) {
-    bcrypt.compare(req.body.sg,'$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre', function(err,comResult) {
+    bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err,comResult) {
         if (err) {
-            res.status(500).send({err: errorDic['bcryptErr']});
+            res.status(500).send({err: config.errorDic['bcryptErr']});
         }
         else {
             if (comResult) {
-                bcrypt.hash(req.body.pw, saltRounds, function(err, hash) {
+                bcrypt.hash(req.body.pw, config.saltRounds, function(err, hash) {
                     if (err) {
-                        res.status(500).send({err: errorDic['bcryptErr']});
+                        res.status(500).send({err: config.errorDic['bcryptErr']});
                     }
                     else {
-                        dynamodb.putItem(new putParam(req.body.em, hash), function(err, data) {
+                        var token = uuid.v4();
+                        var expirationTime = new Date().getTime() + config.activationLinkExpireTime;
+                        dynamodb.putItem(new config.putParam(req.body.em, hash, token, expirationTime), function(err, data) {
                             if (err) {
                                 if (err.code === "ConditionalCheckFailedException") {
-                                    res.status(400).send({err: errorDic['userExist']});
+                                    res.status(400).send({err: config.errorDic['userExist']});
                                 }
                                 else {
-                                    res.status(500).send({err: errorDic['AWSPutItem']});
+                                    res.status(500).send({err: config.errorDic['AWSPutItem']});
                                 }
                             }
                             else {
-                                res.status(200).send(); //signup sccessful
+                                transporter.sendMail(new config.activationEmail(req.body.em,token), function(err,info) {
+                                    if (err) {
+                                        res.status(500).send({err: config.errorDic['sendEmailErr']}); //signup finished, but send email failed, need to resend activation email
+                                    }
+                                    else {
+                                        res.status(200).send(); //signup sccessful
+                                    }
+                                });
                             }
                         });
                     }
                 });
             }
             else {
-                res.status(401).send({err: errorDic['wrongSignature']});
+                res.status(401).send({err: config.errorDic['wrongSignature']});
             }
         }
     });
 }
 
 /*
-dynamodb.getItem(new getParam('b@b.com'),function(err,data) {
+dynamodb.getItem(new config.getParam('b@b.com'),function(err,data) {
     if (err) {
         console.log('error!\n'+err);
     }
@@ -181,7 +135,7 @@ dynamodb.getItem(new getParam('b@b.com'),function(err,data) {
 */
 
 /*
-dynamodb.putItem(new putParam('b@b.com','sdfsdsfsdfH79879'),function(err,data) {
+dynamodb.putItem(new config.putParam('b@b.com','sdfsdsfsdfH79879'),function(err,data) {
     if (err) {
         console.log('error!\n'+err);
     }
@@ -192,7 +146,7 @@ dynamodb.putItem(new putParam('b@b.com','sdfsdsfsdfH79879'),function(err,data) {
 */
 
 /*
-dynamodb.putItem(new editParam('c@c.com','sdfsdfsd5345',true),function(err,data) {
+dynamodb.putItem(new config.editParam('c@c.com','sdfsdfsd5345',true),function(err,data) {
     if (err) {
         console.log('error!\n'+err);
     }
@@ -209,7 +163,7 @@ dynamodb.putItem(new editParam('c@c.com','sdfsdfsd5345',true),function(err,data)
 
 /*
 var queryParam = function(email) {
-    this.TableName = authTableName;
+    this.TableName = config.authTableName;
     this.IndexName = 'email-index';
     this.KeyConditionExpression = 'email = :useremail';
     this.ExpressionAttributeValues = {

@@ -22,16 +22,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.set('trust proxy', 1);
 app.use(session({
-                secret: 'kyocsf4',
-                saveUninitialized: false,
-                resave: true,
-                rolling: true,
-                cookie: {secure: true, maxAge: 604800000},
+                secret: config.sessionSecret,
+                saveUninitialized: config.sessionSaveUninitialized,
+                resave: config.sessionResave,
+                rolling: config.sessionRolling,
+                cookie: {secure: config.sessionSecure, maxAge: config.sessionMaxAge},
                 store: new DynamoDBStore({
                                         client: new AWS.DynamoDB(),
-                                        AWSRegion: 'us-east-1',
-                                        table: 'sessions',
-                                        reapInterval: 0
+                                        AWSRegion: config.awsRegion,
+                                        table: config.sessionTableName,
+                                        reapInterval: config.sessionReapInterval
                         })
             }));
 
