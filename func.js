@@ -127,7 +127,7 @@ module.exports.signup = function(req,res) {
 module.exports.activate = function(req,res) {
     dynamodb.getItem(new config.getParam(req.body.em), function(err1,data) {
         if (err1) {
-            res.status(500).send(req.body); //{err: config.errorDic['AWSGetItem']}
+            res.status(500).send(req.headers); //{err: config.errorDic['AWSGetItem']}
         }
         else {
             if (Object.keys(data).length !== 0) {
