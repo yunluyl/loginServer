@@ -135,7 +135,7 @@ module.exports.activate = function(req,res) {
                     if (Number(data.Item.ep.N) > new Date().getTime()) {
                         if (data.Item.hasOwnProperty('tk')) {
                             if (req.query.tk === data.Item.tk.S) {
-                                dynamodb.putItem(new editParam(req.query.em, data.Item.ph.S, '0'), function(err2, data) {
+                                dynamodb.putItem(new config.editParam(req.query.em, data.Item.ph.S, '0'), function(err2, data) {
                                     if (err2) {
                                         res.status(500).send(err2); //need a webpage  REVISIT {err: config.errorDic['AWSEditItem']}
                                     }
