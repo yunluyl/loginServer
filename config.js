@@ -14,7 +14,7 @@ var consts = {
     sessionReapInterval : 0,
     iosSignatureHash : '$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre',
     activationLinkExpireTime : 900000,  //unit: ms
-    emailSender '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>': 
+    emailSender '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>'
 };
 
 var errorDic = {
