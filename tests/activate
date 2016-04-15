@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -X GET "https://foodloginserver.herokuapp.com/activate?em=luyun198993@gmail.com&tk=sdfdsfdsfdssd"

@@ -16,10 +16,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 //configure express
-app.use(logger('combined'));
+//app.use(logger('combined'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(methodOverride('X-HTTP-Method-Override'));
+//app.use(methodOverride('X-HTTP-Method-Override'));
 app.set('trust proxy', 1);
 app.use(session({
                 secret: config.sessionSecret,
