@@ -125,22 +125,22 @@ module.exports.signup = function(req,res) {
 }
 
 module.exports.activate = function(req,res) {
-    dynamodb.getItem(new config.getParam(req.body.em), function(err1,data) {
+    dynamodb.getItem(new config.getParam(req.query.em), function(err1,data) {
         if (err1) {
-            res.status(500).send(req.query); //{err: config.errorDic['AWSGetItem']}
+            res.status(500).send(err1); //{err: config.errorDic['AWSGetItem']}
         }
         else {
             if (Object.keys(data).length !== 0) {
                 if (data.Item.hasOwnProperty('ep')) {
                     if (Number(data.Item.ep.N) > new Date().getTime()) {
                         if (data.Item.hasOwnProperty('tk')) {
-                            if (req.body.tk === data.Item.tk.S) {
-                                dynamodb.putItem(new editParam(req.body.em, data.Item.ph.S, '0'), function(err2, data) {
+                            if (req.query.tk === data.Item.tk.S) {
+                                dynamodb.putItem(new editParam(req.query.em, data.Item.ph.S, '0'), function(err2, data) {
                                     if (err2) {
                                         res.status(500).send(err2); //need a webpage  REVISIT {err: config.errorDic['AWSEditItem']}
                                     }
                                     else {
-                                        transporter.sendMail(new config.confirmEmail(req.body.em,'activationConfirm'), function(err3,info) {
+                                        transporter.sendMail(new config.confirmEmail(req.query.em,'activationConfirm'), function(err3,info) {
                                             if (err3) {
                                                 res.status(500).send(err3); //activation finished, but send email failed {err: config.errorDic['sendEmailErr']}
                                             }

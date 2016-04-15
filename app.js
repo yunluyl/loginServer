@@ -78,6 +78,6 @@ app.use(function(err, req, res, next) {
 app.post('/login',func.login);
 app.post('/refresh',func.refresh);
 app.put('/signup',func.signup);
-app.post('/activate',func.activate);
+app.get('/activate',func.activate);
 
 module.exports = app;
