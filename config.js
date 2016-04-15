@@ -32,7 +32,7 @@ var errorDic = module.exports.errorDic = {
     noActivationToken:'NAT',
     activationTokenNotMatch:'ANM',
     AWSEditItem:'AEI',
-    error10:'error10 occurred',
+    tempPasswordExpired:'TPE',
     error10:'error10 occurred',
     error10:'error10 occurred',
     error10:'error10 occurred',

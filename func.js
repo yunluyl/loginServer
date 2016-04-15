@@ -40,32 +40,61 @@ module.exports.login = function(req,res) {
                     }
                     else {
                         if (Object.keys(data).length !== 0) {
-                            if (data.Item.hasOwnProperty('rp')) {
-                                res.status(307).send({rdt: 'RSP'}); //redirect to reset password
-                            }
-                            else {
-                                bcrypt.compare(req.body.pw,data.Item.ph.S,function(err3,comResult) {
-                                    if (err3) {
-                                        res.status(500).send({err: config.errorDic['bcryptErr']});
-                                    }
-                                    else {
-                                        if (comResult) {
-                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err4, data) { 
-                                                if (err4) {
+                            bcrypt.compare(req.body.pw,data.Item.ph.S,function(err3,comResult) {
+                                if (err3) {
+                                    res.status(500).send({err: config.errorDic['bcryptErr']});
+                                }
+                                else {
+                                    if (comResult) {
+                                        if (data.Item.hasOwnProperty('pe')) {
+                                            if (Number(data.Item.pe.N) > new Date().getTime()) {
+                                                cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err4, data) { 
+                                                    if (err4) {
+                                                        res.status(500).send({err: config.errorDic['getTokenErr']});
+                                                    }
+                                                    else {
+                                                        req.session.em = req.body.em;
+                                                        res.status(200).send({AWSToken: data.Token, rdt: 'CPW'}); //redirect to change password
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                res.status(401).send({err: config.errDic['tempPasswordExpired']});
+                                            }
+                                        }
+                                        else {
+                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err5, data) { 
+                                                if (err5) {
                                                     res.status(500).send({err: config.errorDic['getTokenErr']});
                                                 }
                                                 else {
                                                     req.session.em = req.body.em;
-                                                    res.status(200).send({AWSToken: data.Token});
+                                                    if (data.Item.hasOwnproerty('ep')) {
+                                                        res.status(200).send({AWSToken: data.Token, rmd: 'UAA'}); //remind user the account is not activated
+                                                    }
+                                                    else {
+                                                        res.status(200).send({AWSToken: data.Token});
+                                                    }
                                                 }
                                             });
                                         }
-                                        else {
-                                            res.status(401).send({err: config.errorDic['wrongPassword']});
-                                        }
+                                        /*
+                                        cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err4, data) { 
+                                            if (err4) {
+                                                res.status(500).send({err: config.errorDic['getTokenErr']});
+                                            }
+                                            else {
+                                                req.session.em = req.body.em;
+                                                res.status(200).send({AWSToken: data.Token});
+                                            }
+                                        });
+                                        */
                                     }
-                                });
-                            }
+                                    else {
+                                        res.status(401).send({err: config.errorDic['wrongPassword']});
+                                    }
+                                }
+                            });
                         }
                         else {
                             res.status(401).send({err: config.errorDic['userNotExist']});
@@ -127,7 +156,7 @@ module.exports.signup = function(req,res) {
 module.exports.activate = function(req,res) {
     dynamodb.getItem(new config.getParam(req.query.em), function(err1,data) {
         if (err1) {
-            res.status(500).send(err1); //{err: config.errorDic['AWSGetItem']}
+            res.status(500).send({err: config.errorDic['AWSGetItem']});
         }
         else {
             if (Object.keys(data).length !== 0) {
@@ -137,12 +166,12 @@ module.exports.activate = function(req,res) {
                             if (req.query.tk === data.Item.tk.S) {
                                 dynamodb.putItem(new config.editParam(req.query.em, data.Item.ph.S, '0'), function(err2, data) {
                                     if (err2) {
-                                        res.status(500).send(err2); //need a webpage  REVISIT {err: config.errorDic['AWSEditItem']}
+                                        res.status(500).send({err: config.errorDic['AWSEditItem']}); //need a webpage  REVISIT
                                     }
                                     else {
                                         transporter.sendMail(new config.confirmEmail(req.query.em,'activationConfirm'), function(err3,info) {
                                             if (err3) {
-                                                res.status(500).send(err3); //activation finished, but send email failed {err: config.errorDic['sendEmailErr']}
+                                                res.status(500).send({err: config.errorDic['sendEmailErr']}); //activation finished, but send email failed
                                             }
                                             else {
                                                 res.status(200).send('activation sccessful'); //activation sccessful
