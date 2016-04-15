@@ -28,14 +28,14 @@ module.exports.refresh = function(req,res) {
 }
 
 module.exports.login = function(req,res) {
-    bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err,comResult) {
-        if (err) {
+    bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err1,comResult) {
+        if (err1) {
             res.status(500).send({err: config.errorDic['bcryptErr']});
         }
         else {
             if (comResult) {
-                dynamodb.getItem(new config.getParam(req.body.em),function(err,data) {
-                    if (err) {
+                dynamodb.getItem(new config.getParam(req.body.em),function(err2,data) {
+                    if (err2) {
                         res.status(500).send({err: config.errorDic['AWSGetItem']});
                     }
                     else {
@@ -44,13 +44,14 @@ module.exports.login = function(req,res) {
                                 res.status(307).send({rdt: 'RSP'}); //redirect to reset password
                             }
                             else {
-                                bcrypt.compare(req.body.pw,data.Item.ph.S,function(err,comResult) {
-                                    if (err) {
+                                bcrypt.compare(req.body.pw,data.Item.ph.S,function(err3,comResult) {
+                                    if (err3) {
                                         res.status(500).send({err: config.errorDic['bcryptErr']});
                                     }
                                     else {
                                         if (comResult) {
-                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err, data) { if (err) {
+                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err4, data) { 
+                                                if (err4) {
                                                     res.status(500).send({err: config.errorDic['getTokenErr']});
                                                 }
                                                 else {
@@ -80,21 +81,21 @@ module.exports.login = function(req,res) {
 }
 
 module.exports.signup = function(req,res) {
-    bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err,comResult) {
-        if (err) {
+    bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err1,comResult) {
+        if (err1) {
             res.status(500).send({err: config.errorDic['bcryptErr']});
         }
         else {
             if (comResult) {
-                bcrypt.hash(req.body.pw, config.saltRounds, function(err, hash) {
-                    if (err) {
+                bcrypt.hash(req.body.pw, config.saltRounds, function(err2, hash) {
+                    if (err2) {
                         res.status(500).send({err: config.errorDic['bcryptErr']});
                     }
                     else {
                         var token = uuid.v4();
                         var expirationTime = new Date().getTime() + config.activationLinkExpireTime;
-                        dynamodb.putItem(new config.putParam(req.body.em, hash, token, expirationTime.toString()), function(err, data) {
-                            if (err) {
+                        dynamodb.putItem(new config.putParam(req.body.em, hash, token, expirationTime.toString()), function(err3, data) {
+                            if (err3) {
                                 if (err.code === "ConditionalCheckFailedException") {
                                     res.status(400).send({err: config.errorDic['userExist']});
                                 }
@@ -103,8 +104,8 @@ module.exports.signup = function(req,res) {
                                 }
                             }
                             else {
-                                transporter.sendMail(new config.activationEmail(req.body.em,token), function(error,info) {
-                                    if (error) {
+                                transporter.sendMail(new config.activationEmail(req.body.em,token), function(err4,info) {
+                                    if (err4) {
                                         res.status(500).send({err: config.errorDic['sendEmailErr']}); //signup finished, but send email failed, need to resend activation email
                                     }
                                     else {
@@ -124,9 +125,9 @@ module.exports.signup = function(req,res) {
 }
 
 module.exports.activate = function(req,res) {
-    dynamodb.getItem(new config.putParam(req.body.em), function(err,data) {
-        if (err) {
-            res.status(500).send({err: config.errorDic['AWSGetItem']});
+    dynamodb.getItem(new config.putParam(req.body.em), function(err1,data) {
+        if (err1) {
+            res.status(500).send(err1); //{err: config.errorDic['AWSGetItem']}
         }
         else {
             if (Object.keys(data).length !== 0) {
@@ -134,17 +135,17 @@ module.exports.activate = function(req,res) {
                     if (Number(data.Item.ep.N) > new Date().getTime()) {
                         if (data.Item.hasOwnProperty('tk')) {
                             if (req.body.tk === data.Item.tk.S) {
-                                dynamodb.putItem(new editParam(req.body.em, data.Item.ph.S, '0'), function(err, data) {
-                                    if (err) {
-                                        res.status(500).send({err: config.errorDic['AWSEditItem']}); //need a webpage  REVISIT
+                                dynamodb.putItem(new editParam(req.body.em, data.Item.ph.S, '0'), function(err2, data) {
+                                    if (err2) {
+                                        res.status(500).send(err2); //need a webpage  REVISIT {err: config.errorDic['AWSEditItem']}
                                     }
                                     else {
-                                        transporter.sendMail(new config.confirmEmail(req.body.em,'activationConfirm'), function(error,info) {
-                                            if (error) {
-                                                res.status(500).send({err: config.errorDic['sendEmailErr']}); //activation finished, but send email failed
+                                        transporter.sendMail(new config.confirmEmail(req.body.em,'activationConfirm'), function(err3,info) {
+                                            if (err3) {
+                                                res.status(500).send(err3); //activation finished, but send email failed {err: config.errorDic['sendEmailErr']}
                                             }
                                             else {
-                                                res.status(200).send(); //activation sccessful
+                                                res.status(200).send('activation sccessful'); //activation sccessful
                                             }
                                         })
                                     }
