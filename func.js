@@ -69,7 +69,7 @@ module.exports.login = function(req,res) {
                                                 }
                                                 else {
                                                     req.session.em = req.body.em;
-                                                    if (data.Item.hasOwnproerty('ep')) {
+                                                    if (data.Item.hasOwnProerty('ep')) {
                                                         res.status(200).send({AWSToken: tokenData.Token, rmd: 'UAA'}); //remind user the account is not activated
                                                     }
                                                     else {
