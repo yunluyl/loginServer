@@ -1,4 +1,4 @@
-var consts = {
+var consts = module.exports = {
     saltRounds : 10,
     authTableName : 'urs',
     awsRegion : 'us-east-1',
@@ -17,7 +17,7 @@ var consts = {
     emailSender : '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>'
 };
 
-var errorDic = {
+var errorDic = module.exports.errorDic = {
     AWSGetItem:'AGI',
     userNotExist:'UNE',
     bcryptErr:'BCE',
@@ -41,12 +41,12 @@ var errorDic = {
     error10:'error10 occurred'
 };
 
-var awsApiVersion = {
+var awsApiVersion = module.exports.awsApiVersion = {
     cognitoidentity: '2014-06-30',
     dynamodb: '2012-08-10'
 };
 
-var smtpConfig = {
+var smtpConfig = module.exports.smtpConfig = {
     host: 'smtp.mailgun.org',
     port: 2525,
     secure: false,
@@ -59,21 +59,21 @@ var smtpConfig = {
     }
 };
 
-var activationEmail = function(sendto,token) {
+var activationEmail = module.exports.activationEmail = function(sendto,token) {
     this.from = consts.emailSender;
     this.to = sendto;
     this.subject = 'Account Activation';
     this.text = 'https://foodloginserver.herokuapp.com/activate?em='+sendto+'&tk='+token;
 };
 
-var resetEmail = function(sendto,tempPassword) {
+var resetEmail = module.exports.resetEmail = function(sendto,tempPassword) {
     this.from = consts.emailSender;
     this.to = sendto;
     this.subject = 'Reset Password';
     this.text = tempPassword;
 };
 
-var confirmEmail = function(sendto,category) {
+var confirmEmail = module.exports.confirmEmail = function(sendto,category) {
     this.from = consts.emailSender;
     this.to = sendto;
     switch (category) {
@@ -84,7 +84,7 @@ var confirmEmail = function(sendto,category) {
     }
 }
 
-var putParam = function(email,passwordHash,token,expirationTime) {
+var putParam = module.exports.putParam = function(email,passwordHash,token,expirationTime) {
     this.TableName = consts.authTableName;
     this.Item = {
         'em':{S:email},
@@ -95,7 +95,7 @@ var putParam = function(email,passwordHash,token,expirationTime) {
     this.ConditionExpression = 'attribute_not_exists(em)';
 }
 
-var getParam = function(email/*,ProjectionExpression1,ProjectionExpression2,...*/) {
+var getParam = module.exports.getParam = function(email/*,ProjectionExpression1,ProjectionExpression2,...*/) {
     this.TableName = consts.authTableName;
     this.Key = {
         'em':{S:arguments[0]}
@@ -108,7 +108,7 @@ var getParam = function(email/*,ProjectionExpression1,ProjectionExpression2,...*
     }
 }
 
-var editParam = function(email,passwordHash,passwordExpireTime) {
+var editParam = module.exports.editParam = function(email,passwordHash,passwordExpireTime) {
     this.TableName = consts.authTableName;
     this.Item = {
         'em':{S:email},
@@ -120,21 +120,10 @@ var editParam = function(email,passwordHash,passwordExpireTime) {
     this.ConditionExpression = 'attribute_exists(em)';
 }
 
-var cognitoTokenParam = function(email) {
+var cognitoTokenParam = module.exports.cognitoTokenParam = function(email) {
     this.IdentityPoolId = consts.IdentityPoolId;
     this.Logins = {
         'login.test.developerLogin': email
     };
     this.TokenDuration = consts.awsTokenDuration;
 }
-
-module.exports = consts;
-module.exports.errorDic = errorDic;
-module.exports.awsApiVersion = awsApiVersion;
-module.exports.putParam = putParam;
-module.exports.getParam = getParam;
-module.exports.editParam = editParam;
-module.exports.cognitoTokenParam = cognitoTokenParam;
-module.exports.smtpConfig = smtpConfig;
-module.exports.activationEmail = activationEmail;
-module.exports.resetEmail = resetEmail;
