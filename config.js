@@ -13,7 +13,8 @@ var consts = {
     sessionTableName : 'sessions',
     sessionReapInterval : 0,
     iosSignatureHash : '$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre',
-    activationLinkExpireTime : 900000  //unit: ms
+    activationLinkExpireTime : 900000,  //unit: ms
+    emailSender '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>': 
 };
 
 var errorDic = {
@@ -26,6 +27,17 @@ var errorDic = {
     AWSPutItem:'API',
     wrongSignature:'WSG',
     sendEmailErr:'SEE',
+    userHasActivated:'UHA',
+    activateTokenExpired:'ATE',
+    noActivationToken:'NAT',
+    activationTokenNotMatch:'ANM',
+    AWSEditItem:'AEI',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
     error10:'error10 occurred'
 };
 
@@ -48,18 +60,29 @@ var smtpConfig = {
 };
 
 var activationEmail = function(sendto,token) {
-    this.from = '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>';
+    this.from = consts.emailSender;
     this.to = sendto;
     this.subject = 'Account Activation';
     this.text = 'https://foodloginserver.herokuapp.com/activate?em='+sendto+'&tk='+token;
 };
 
 var resetEmail = function(sendto,tempPassword) {
-    this.from = '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>';
+    this.from = consts.emailSender;
     this.to = sendto;
     this.subject = 'Reset Password';
     this.text = tempPassword;
 };
+
+var confirmEmail = function(sendto,category) {
+    this.from = consts.emailSender;
+    this.to = sendto;
+    switch (category) {
+        case 'activationConfirm':
+            this.subject = 'Activation Confirmation';
+            this.text = 'Your account has been successfully activated';
+            break;
+    }
+}
 
 var putParam = function(email,passwordHash,token,expirationTime) {
     this.TableName = consts.authTableName;
@@ -85,14 +108,14 @@ var getParam = function(email/*,ProjectionExpression1,ProjectionExpression2,...*
     }
 }
 
-var editParam = function(email,passwordHash,rstPass) {
+var editParam = function(email,passwordHash,passwordExpireTime) {
     this.TableName = consts.authTableName;
     this.Item = {
         'em':{S:email},
         'ph':{S:passwordHash},
     };
-    if (rstPass) {
-        this.Item['rp'] = {BOOL:true};
+    if (passwordExpireTime !== '0') {
+        this.Item['pe'] = {N:passwordExpireTime};
     }
     this.ConditionExpression = 'attribute_exists(em)';
 }

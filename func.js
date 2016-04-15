@@ -11,7 +11,7 @@ var cognitoidentity = new AWS.CognitoIdentity();
 var dynamodb = new AWS.DynamoDB();
 var transporter = nodemailer.createTransport(config.smtpConfig);
 
-exports.refresh = function(req,res) {
+module.exports.refresh = function(req,res) {
     if (req.session && req.session.em) {
         cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.session.em),function(err, data) { 
             if (err) {
@@ -27,7 +27,7 @@ exports.refresh = function(req,res) {
     }
 }
 
-exports.login = function(req,res) {
+module.exports.login = function(req,res) {
     bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err,comResult) {
         if (err) {
             res.status(500).send({err: config.errorDic['bcryptErr']});
@@ -79,7 +79,7 @@ exports.login = function(req,res) {
     });
 }
 
-exports.signup = function(req,res) {
+module.exports.signup = function(req,res) {
     bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err,comResult) {
         if (err) {
             res.status(500).send({err: config.errorDic['bcryptErr']});
@@ -105,7 +105,7 @@ exports.signup = function(req,res) {
                             else {
                                 transporter.sendMail(new config.activationEmail(req.body.em,token), function(error,info) {
                                     if (error) {
-                                        res.status(500).send(error); //signup finished, but send email failed, need to resend activation email {err: config.errorDic['sendEmailErr']}
+                                        res.status(500).send({err: config.errorDic['sendEmailErr']}); //signup finished, but send email failed, need to resend activation email
                                     }
                                     else {
                                         res.status(200).send(); //signup sccessful
@@ -118,6 +118,56 @@ exports.signup = function(req,res) {
             }
             else {
                 res.status(401).send({err: config.errorDic['wrongSignature']});
+            }
+        }
+    });
+}
+
+module.exports.activate = function(req,res) {
+    dynamodb.getItem(new config.putParam(req.body.em), function(err,data) {
+        if (err) {
+            res.status(500).send({err: config.errorDic['AWSGetItem']});
+        }
+        else {
+            if (Object.keys(data).length !== 0) {
+                if (data.Item.hasOwnProperty('ep')) {
+                    if (Number(data.Item.ep.N) > new Date().getTime()) {
+                        if (data.Item.hasOwnProperty('tk')) {
+                            if (req.body.tk === data.Item.tk.S) {
+                                dynamodb.putItem(new editParam(req.body.em, data.Item.ph.S, '0'), function(err, data) {
+                                    if (err) {
+                                        res.status(500).send({err: config.errorDic['AWSEditItem']}); //need a webpage  REVISIT
+                                    }
+                                    else {
+                                        transporter.sendMail(new config.confirmEmail(req.body.em,'activationConfirm'), function(error,info) {
+                                            if (error) {
+                                                res.status(500).send({err: config.errorDic['sendEmailErr']}); //activation finished, but send email failed
+                                            }
+                                            else {
+                                                res.status(200).send(); //activation sccessful
+                                            }
+                                        })
+                                    }
+                                });
+                            }
+                            else {
+                                res.status(400).send({err: errorDic['activationTokenNotMatch']}); //need a webpage REVISIT
+                            }
+                        }
+                        else {
+                            res.status(500).send({err: errorDic['noActivationToken']}); //need a webpage REVISIT
+                        }
+                    }
+                    else {
+                        res.status(400).send({err: config.errorDic['activateTokenExpired']}); //need a webpage REVISIT
+                    }
+                }
+                else {
+                    res.status(400).send({err: config.errorDic['userHasActivated']}); //need a webpage REVISIT
+                }
+            }
+            else {
+                res.status(401).send({err: config.errorDic['userNotExist']}); //need a webpage  REVISIT
             }
         }
     });
