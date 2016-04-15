@@ -48,13 +48,13 @@ module.exports.login = function(req,res) {
                                     if (comResult) {
                                         if (data.Item.hasOwnProperty('pe')) {
                                             if (Number(data.Item.pe.N) > new Date().getTime()) {
-                                                cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err4, data) { 
+                                                cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err4, tokenData) { 
                                                     if (err4) {
                                                         res.status(500).send({err: config.errorDic['getTokenErr']});
                                                     }
                                                     else {
                                                         req.session.em = req.body.em;
-                                                        res.status(200).send({AWSToken: data.Token, rdt: 'CPW'}); //redirect to change password
+                                                        res.status(200).send({AWSToken: tokenData.Token, rdt: 'CPW'}); //redirect to change password
                                                     }
                                                 });
                                             }
@@ -63,32 +63,21 @@ module.exports.login = function(req,res) {
                                             }
                                         }
                                         else {
-                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err5, data) { 
+                                            cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err5, tokenData) { 
                                                 if (err5) {
                                                     res.status(500).send({err: config.errorDic['getTokenErr']});
                                                 }
                                                 else {
                                                     req.session.em = req.body.em;
                                                     if (data.Item.hasOwnproerty('ep')) {
-                                                        res.status(200).send({AWSToken: data.Token, rmd: 'UAA'}); //remind user the account is not activated
+                                                        res.status(200).send({AWSToken: tokenData.Token, rmd: 'UAA'}); //remind user the account is not activated
                                                     }
                                                     else {
-                                                        res.status(200).send({AWSToken: data.Token});
+                                                        res.status(200).send({AWSToken: tokenData.Token});
                                                     }
                                                 }
                                             });
                                         }
-                                        /*
-                                        cognitoidentity.getOpenIdTokenForDeveloperIdentity(new config.cognitoTokenParam(req.body.em),function(err4, data) { 
-                                            if (err4) {
-                                                res.status(500).send({err: config.errorDic['getTokenErr']});
-                                            }
-                                            else {
-                                                req.session.em = req.body.em;
-                                                res.status(200).send({AWSToken: data.Token});
-                                            }
-                                        });
-                                        */
                                     }
                                     else {
                                         res.status(401).send({err: config.errorDic['wrongPassword']});
