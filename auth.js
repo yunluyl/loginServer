@@ -145,7 +145,7 @@ module.exports.signup = function(req,res) {
 module.exports.activate = function(req,res) {
     dynamodb.getItem(new config.getParam(req.query.em), function(err1,data) {
         if (err1) {
-            res.render('activate',{message : config.activateMessage['awsGetItem']});
+            res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['awsGetItem']});
         }
         else {
             if (Object.keys(data).length !== 0) {
@@ -155,38 +155,38 @@ module.exports.activate = function(req,res) {
                             if (req.query.tk === data.Item.tk.S) {
                                 dynamodb.putItem(new config.editParam(req.query.em, data.Item.ph.S, '0'), function(err2, data) {
                                     if (err2) {
-                                        res.status(500).send({err: config.errorDic['AWSEditItem']}); //need a webpage  REVISIT
+                                        res.render('activate',{title: 'Foodies account activation', message: config.activateMessage['AWSEditItem']});
                                     }
                                     else {
                                         transporter.sendMail(new config.confirmEmail(req.query.em,'activationConfirm'), function(err3,info) {
                                             if (err3) {
-                                                res.status(500).send({err: config.errorDic['sendEmailErr']}); //activation finished, but send email failed
+                                                res.render('activate',{title: 'Foodies account activation', message: config.activateMessage['sendEmailErr']}); //activation finished, but send email failed
                                             }
                                             else {
-                                                res.render('activate',{message : config.activateMessage['activationDone']});
+                                                res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['activationDone']});
                                             }
                                         })
                                     }
                                 });
                             }
                             else {
-                                res.status(400).send({err: errorDic['activationTokenNotMatch']}); //need a webpage REVISIT
+                                res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['activationTokenNotMatch']});
                             }
                         }
                         else {
-                            res.status(500).send({err: errorDic['noActivationToken']}); //need a webpage REVISIT
+                            res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['noActivationToken']});
                         }
                     }
                     else {
-                        res.status(400).send({err: config.errorDic['activateTokenExpired']}); //need a webpage REVISIT
+                        res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['activateTokenExpired']});
                     }
                 }
                 else {
-                    res.status(400).send({err: config.errorDic['userHasActivated']}); //need a webpage REVISIT
+                    res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['userHasActivated']});
                 }
             }
             else {
-                res.status(401).send({err: config.errorDic['userNotExist']}); //need a webpage  REVISIT
+                res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['userNotExist']});
             }
         }
     });

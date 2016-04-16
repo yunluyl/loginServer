@@ -1,3 +1,28 @@
+function f() {
+      console.log("foo");
+        setTimeout(g, 0);
+          console.log("baz");
+            h();
+}
+
+function g() {
+      console.log("bar");
+}
+
+function h() {
+      console.log("blix");
+}
+
+f();
+console.log('sdfd');
+h();
+/*
+console.log('a');
+process.nextTick(function() {console.log('b');});
+console.log('c');
+console.log('d');
+*/
+/*
 var nodemailer = require('nodemailer');
 var smtpConfig = {
     host: 'smtp.mailgun.org',
@@ -28,3 +53,4 @@ transporter.sendMail(mailOptions, function(err,info) {
         console.log('Message send: ' + info);
     }
 });
+*/

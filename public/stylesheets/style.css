@@ -4,12 +4,12 @@ h1 {
   color: #000; }
 
 div {
-  text-align: center;
   background-color: #c0c0c0;
   margin: 0 auto;
   width: 80%;
   height: 300px; }
   div p {
+    text-align: center;
     color: #000;
     font-size: 20px; }
 

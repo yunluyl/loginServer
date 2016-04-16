@@ -8,8 +8,8 @@ var session = require('express-session');
 var DynamoDBStore = require('connect-dynamodb')({session: session});
 var AWS = require('aws-sdk');
 //local files
-var config = require('./config.js');
-var func = require('./func.js');
+var config = require('./config');
+var apiRouter = require('./routes/api');
 
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
@@ -75,9 +75,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.post('/login',func.login);
-app.post('/refresh',func.refresh);
-app.put('/signup',func.signup);
-app.get('/activate',func.activate);
+app.use('/api',apiRouter);
 
 module.exports = app;
