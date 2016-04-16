@@ -1,7 +1,7 @@
 !#/bin/bash
 ./sass
 git status
-read -p "Do you want to push all the changes to heroku?[Y/N] " -r
+read -p "Do you want to push all the changes to heroku?[Y/N] " -n 1 -r
 # echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
