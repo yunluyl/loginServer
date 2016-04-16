@@ -38,16 +38,15 @@ var errorDic = module.exports.errorDic = {
 };
 
 var activateMessage = module.exports.activateMessage = {
-    AWSGetItem:'Internal error occured while getting data from the database',
+    AWSGetItem:'ERROR: Internal error occured while getting data from the database',
     activationDone:'Account has been successfully activated!',
-    AWSEditItem:'Internal error occured while updating data in the database',
-    sendEmailErr:'Activation has completed, but confirmation email did not send out because of server error',
-    activationDone:'error10 occurred',
-    activationTokenNotMatch:'error10 occurred',
-    noActivationToken:'error10 occurred',
-    activateTokenExpired:'error10 occurred',
-    userHasActivated:'error10 occurred',
-    userNotExist:'error10 occurred',
+    AWSEditItem:'ERROR: Internal error occured while updating data in the database',
+    sendEmailErr:'Activation has completed, but confirmation email did not send out because of email server error',
+    activationTokenNotMatch:'ERROR: Wrong activation token value',
+    noActivationToken:'ERROR: Internal error occured, no token value exist in the database',
+    activateTokenExpired:'ERROR: The activation link has expired, please resend activation email',
+    userHasActivated:'ERROR: User %s has been activated before',
+    userNotExist:'ERROR: User %s do not exist',
     error10:'error10 occurred',
     error10:'error10 occurred',
     error10:'error10 occurred',
@@ -81,7 +80,7 @@ var activationEmail = module.exports.activationEmail = function(sendto,token) {
     this.from = consts.emailSender;
     this.to = sendto;
     this.subject = 'Account Activation';
-    this.text = 'https://foodloginserver.herokuapp.com/activate?em='+sendto+'&tk='+token;
+    this.text = 'https://foodloginserver.herokuapp.com/api/activate?em='+sendto+'&tk='+token;
 };
 
 var resetEmail = module.exports.resetEmail = function(sendto,tempPassword) {
