@@ -41,6 +41,16 @@ var errorDic = module.exports.errorDic = {
     error10:'error10 occurred'
 };
 
+var activateMessage = module.exports.activateMessage = {
+    AWSGetItem:'Internal error occured while getting data from the database',
+    activationDone:'Account has been successfully activated!',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
+    error10:'error10 occurred',
+    error10:'error10 occurred'
+};
+
 var awsApiVersion = module.exports.awsApiVersion = {
     cognitoidentity: '2014-06-30',
     dynamodb: '2012-08-10'

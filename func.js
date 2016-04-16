@@ -145,7 +145,7 @@ module.exports.signup = function(req,res) {
 module.exports.activate = function(req,res) {
     dynamodb.getItem(new config.getParam(req.query.em), function(err1,data) {
         if (err1) {
-            res.status(500).send({err: config.errorDic['AWSGetItem']});
+            res.render('activate',{message : config.activateMessage['awsGetItem']});
         }
         else {
             if (Object.keys(data).length !== 0) {
@@ -163,7 +163,7 @@ module.exports.activate = function(req,res) {
                                                 res.status(500).send({err: config.errorDic['sendEmailErr']}); //activation finished, but send email failed
                                             }
                                             else {
-                                                res.status(200).send('activation sccessful'); //activation sccessful
+                                                res.render('activate',{message : config.activateMessage['activationDone']});
                                             }
                                         })
                                     }
