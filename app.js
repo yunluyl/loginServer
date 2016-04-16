@@ -14,7 +14,7 @@ var apiRouter = require('./routes/api');
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-app.use(express.static('/public',path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 //configure express
 app.use(logger('combined'));
