@@ -13,7 +13,7 @@ var func = require('./func.js');
 
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set('view engine', 'jade');
 
 //configure express
 app.use(logger('combined'));
