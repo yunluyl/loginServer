@@ -182,11 +182,11 @@ module.exports.activate = function(req,res) {
                     }
                 }
                 else {
-                    res.render('activate',{title: 'Foodies account activation', message : (config.activateMessage['userHasActivated'], req.query.em)});
+                    res.render('activate',{title: 'Foodies account activation', message : config.activateMessage['userHasActivated'].replace(/[%][s]/,req.query.em)});
                 }
             }
             else {
-                res.render('activate',{title: 'Foodies account activation', message : (config.activateMessage['userNotExist'], req.query.em)});
+                res.render('activate',{title: 'Foodies account activation', message : activateMessage['userNotExist'].replace(/[%][s]/,req.query.em)});
             }
         }
     });
