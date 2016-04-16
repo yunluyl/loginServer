@@ -1,0 +1,11 @@
+!#/bin/bash
+./sass
+git status
+read -p "Do you want to push all the changes to heroku?[Y/N] " -r
+# echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    git add -A
+    git commit -m "test"
+    git push heroku
+fi
