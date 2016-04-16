@@ -1,0 +1,4 @@
+#!/bin/bash
+styleDirectory=$(dirname $0)"/public/stylesheets"
+stylesheetName="style"
+sass ${styleDirectory}/sass/${stylesheetName}.scss ${styleDirectory}/${stylesheetName}.css
