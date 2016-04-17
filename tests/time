@@ -1,0 +1,3 @@
+#!/bin/bash
+curl -X GET -b $(dirname $0)/cookies.txt -c $(dirname $0)/cookies.txt https://foodloginserver.herokuapp.com/api/time
+
