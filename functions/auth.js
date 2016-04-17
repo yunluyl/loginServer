@@ -2,7 +2,7 @@ var AWS = require('aws-sdk');
 var bcrypt = require('bcryptjs');
 var nodemailer = require('nodemailer');
 var uuid = require('node-uuid');
-var config = require('./config');
+var config = require('../config');
 //Constants
 AWS.config.region = config.awsRegion;
 AWS.config.apiVersion = config.wsApiVersion;

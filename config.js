@@ -13,9 +13,9 @@ var consts = module.exports = {
     sessionTableName : 'sessions',
     sessionReapInterval : 0,
     iosSignatureHash : '$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre',
-    activationLinkExpireTime : 60000,  //unit: ms
+    activationLinkExpireTime : 1800000,  //unit: ms
     emailSender : '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>',
-    tempPasswordExpireTime : 60000  //unit: ms
+    tempPasswordExpireTime : 300000  //unit: ms
 };
 
 var errorDic = module.exports.errorDic = {
