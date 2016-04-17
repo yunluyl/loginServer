@@ -303,7 +303,7 @@ module.exports.resendEmail = function(req, res) {
                         var expirationTime = new Date().getTime() + config.activationLinkExpireTime;
                         dynamodb.putItem(new config.editParam(req.body.em, data1.Item.ph.S, token, expirationTime), function(err3, data2) {
                             if (err3) {
-                               res.status(500).send({err: config.errorDic['AWSPutItem']});
+                               res.status(500).send(err3); //{err: config.errorDic['AWSPutItem']}
                             }
                             else {
                                 transporter.sendMail(new config.activationEmail(req.session.em,token), function(err4,info) {
