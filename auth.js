@@ -153,7 +153,7 @@ module.exports.activate = function(req,res) {
                     if (Number(data1.Item.ep.N) > new Date().getTime()) {
                         if (data1.Item.hasOwnProperty('tk')) {
                             if (req.query.tk === data1.Item.tk.S) {
-                                dynamodb.putItem(new config.editParam(req.query.em, data1.Item.ph.S, '0'), function(err2, data2) {
+                                dynamodb.putItem(new config.editParam(req.query.em, data1.Item.ph.S), function(err2, data2) {
                                     if (err2) {
                                         res.render('activate',{title: 'Foodies account activation', message: config.activateMessage['AWSEditItem']});
                                     }
@@ -216,7 +216,7 @@ module.exports.resetPassword = function(req, res) {
                                     }
                                     else {
                                         var passwordExpirationTime = new Date().getTime() + config.tempPasswordExpireTime;
-                                        dynamodb.putItem(new config.editParam(req.body.em, hash, passwordExpirationTime.toString()), function(err4, data2) {
+                                        dynamodb.putItem(new config.editParam(req.body.em, hash, passwordExpirationTime), function(err4, data2) {
                                             if (err4) {
                                                 res.status(500).send({err: config.errorDic['AWSPutItem']});
                                             }
@@ -248,57 +248,112 @@ module.exports.resetPassword = function(req, res) {
 }
 
 module.exports.changePassword = function(req, res) {
-    bcrypt.compare(req.body.sg, config.iosSignatureHash, function(err1, comResult1) {
-        if (err1) {
-            res.status(500).send({err: config.errorDic['bcryptErr']});
-        }
-        else {
-            if (comResult1) {
-                if (req.session && req.session.em) {
-                    dynamodb.getItem(new config.getParam(req.session.em), function(err2, data1) {
-                        if (err2) {
-                            res.status(500).send({err : errorDic['AWSGetItem']});
+    if (req.session && req.session.em) {
+        dynamodb.getItem(new config.getParam(req.session.em), function(err2, data1) {
+            if (err2) {
+                res.status(500).send({err : errorDic['AWSGetItem']});
+            }
+            else {
+                if (Object.keys(data1).length !== 0) {
+                    bcrypt.compare(req.body.pw, data1.Item.ph.S, function(err3, comResult2) {
+                        if (comResult2) {
+                            bcrypt.hash(req.body.np, config.saltRounds, function(err4, hash) {
+                                if (err4) {
+                                    res.status(500).send({err: config.errorDic['bcryptErr']});
+                                }
+                                else {
+                                    dynamodb.putItem(new config.editParam(req.session.em, hash), function(err5, data2) {
+                                        if (err5) {
+                                            res.status(500).send({err : errorDic['AWSEditItem']});
+                                        }
+                                        else {
+                                            res.status(200).send();
+                                        }
+                                    });
+                                }
+                            }
                         }
                         else {
-                            if (Object.keys(data1).length !== 0) {
-                                bcrypt.compare(req.body.pw, data1.Item.ph.S, function(err3, comResult2) {
-                                    if (comResult2) {
-                                        bcrypt.hash(req.body.np, config.saltRounds, function(err4, hash) {
-                                            if (err4) {
-                                                res.status(500).send({err: config.errorDic['bcryptErr']});
-                                            }
-                                            else {
-                                                dynamodb.putItem(new config.editParam(req.session.em, hash, '0'), function(err5, data2) {
-                                                    if (err5) {
-                                                        res.status(500).send({err : errorDic['AWSEditItem']});
-                                                    }
-                                                    else {
-                                                        res.status(200).send();
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        res.status(401).send({err: config.errorDic['wrongPassword']});
-                                    }
-                                });
-                            }
-                            else {
-                                res.status(401).send({err: config.errorDic['userNotExist']});
-                            }
+                            res.status(401).send({err: config.errorDic['wrongPassword']});
                         }
                     });
                 }
                 else {
-                    res.status(307).send({rdt: 'ULG'}); //redirect to user login
+                    res.status(401).send({err: config.errorDic['userNotExist']});
                 }
             }
-            else {
-                res.status(401).send({err: config.errorDic['wrongSignature']});
-            }
-        }
+        });
+    }
+    else {
+        res.status(307).send({rdt: 'ULG'}); //redirect to user login
+    }
 }
+
+module.exports.resendEmail = function(req, res) {
+    if (req.session && req.session.em) {
+        dynamodb.getItem(new config.getParam(req.session.em), function(err2, data1) {
+            if (err2) {
+                res.status(500).send({err : config.errorDic['AWSGetItem']});
+            }
+            else {
+                if (Object.keys(data1).length !== 0) {
+                    if (data1.Item.hasOwnProperty('tk')) {
+                        var token = uuid.v4();
+                        var expirationTime = new Date().getTime() + config.activationLinkExpireTime;
+                        dynamodb.putItem(new config.editParam(req.body.em, hash, token, expirationTime), function(err3, data2) {
+                            if (err3) {
+                               res.status(500).send({err: config.errorDic['AWSPutItem']});
+                            }
+                            else {
+                                transporter.sendMail(new config.activationEmail(req.session.em,token), function(err4,info) {
+                                    if (err4) {
+                                        res.status(500).send({err: config.errorDic['sendEmailErr']}); //send email failed, need to resend activation email
+                                    }
+                                    else {
+                                        res.status(200).send(); //resend email sccessful
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        res.status(400).send({err : config.errorDic['userHasActivated']});
+                    }
+                }
+                else {
+                    res.status(401).send({err : config.errorDic['userNotExist']});
+                }
+            }
+        });
+    }
+    else {
+        res.status(307).send({rdt: 'ULG'}); //redirect to user login
+    }
+}
+
+module.exports.logout = function(rep, res)
+{
+    if (req.session && req.session.em)
+    {
+        req.session.destroy(function(err2)
+        {
+            if (err2) 
+            {
+                res.status(500).send({err : config.errorDic['destroySessionErr']});
+            }
+            else
+            {
+                res.status(200).send();
+            }
+        });
+    }
+    else
+    {
+        res.status(307).send({rdt: 'ULG'}); //redirect to user login
+    }
+}
+
+
 /*
 dynamodb.getItem(new config.getParam('b@b.com'),function(err,data) {
     if (err) {

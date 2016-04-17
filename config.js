@@ -13,9 +13,9 @@ var consts = module.exports = {
     sessionTableName : 'sessions',
     sessionReapInterval : 0,
     iosSignatureHash : '$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre',
-    activationLinkExpireTime : 900000,  //unit: ms
+    activationLinkExpireTime : 60000,  //unit: ms
     emailSender : '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>',
-    tempPasswordExpireTime : 900000  //unit: ms
+    tempPasswordExpireTime : 60000  //unit: ms
 };
 
 var errorDic = module.exports.errorDic = {
@@ -31,8 +31,8 @@ var errorDic = module.exports.errorDic = {
     AWSEditItem:'AEI',
     tempPasswordExpired:'TPE',
     accountNotActive:'ANA',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
+    userHasActivated:'UHA',
+    destroySessionErr:'DSE',
     error10:'error10 occurred',
     error10:'error10 occurred',
     error10:'error10 occurred'
@@ -117,14 +117,18 @@ var getParam = module.exports.getParam = function(email/*,ProjectionExpression1,
     }
 }
 
-var editParam = module.exports.editParam = function(email,passwordHash,passwordExpireTime) {
+var editParam = module.exports.editParam = function(email,passwordHash/*, passwordExpireTime, activationToken, tokenExpireTime*/) {
     this.TableName = consts.authTableName;
     this.Item = {
         'em':{S:email},
         'ph':{S:passwordHash},
     };
-    if (passwordExpireTime !== '0') {
-        this.Item['pe'] = {N:passwordExpireTime};
+    if (arguments.length === 3) {
+        this.Item['pe'] = {N:arguments[2].toString()};
+    }
+    else if (arguments.length === 4) {
+        this.Item['tk'] = {S : arguments[2]};
+        this.Item['ep'] = {N : arguments[3]};
     }
     this.ConditionExpression = 'attribute_exists(em)';
 }
