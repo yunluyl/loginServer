@@ -14,7 +14,8 @@ var consts = module.exports = {
     sessionReapInterval : 0,
     iosSignatureHash : '$2a$12$TIxeS9KNBulfcris.V51q..WJb9K3ZXjphU4kzuhvMa5OzEaJeQre',
     activationLinkExpireTime : 900000,  //unit: ms
-    emailSender : '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>'
+    emailSender : '"Foodies" <foodies@sandboxc8c4690cc28f4f6a9ce82305a3fcfbdf.mailgun.org>',
+    tempPasswordExpireTime : 900000  //unit: ms
 };
 
 var errorDic = module.exports.errorDic = {
@@ -29,7 +30,7 @@ var errorDic = module.exports.errorDic = {
     sendEmailErr:'SEE',
     AWSEditItem:'AEI',
     tempPasswordExpired:'TPE',
-    error10:'error10 occurred',
+    accountNotActive:'ANA',
     error10:'error10 occurred',
     error10:'error10 occurred',
     error10:'error10 occurred',
@@ -46,16 +47,7 @@ var activateMessage = module.exports.activateMessage = {
     noActivationToken:'ERROR: Internal error occured, no token value exist in the database',
     activateTokenExpired:'ERROR: The activation link has expired, please resend activation email',
     userHasActivated:'ERROR: User %s has been activated before',
-    userNotExist:'ERROR: User %s do not exist',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
-    error10:'error10 occurred',
-    error10:'error10 occurred'
+    userNotExist:'ERROR: User %s do not exist'
 };
 
 var awsApiVersion = module.exports.awsApiVersion = {
@@ -143,4 +135,14 @@ var cognitoTokenParam = module.exports.cognitoTokenParam = function(email) {
         'login.test.developerLogin': email
     };
     this.TokenDuration = consts.awsTokenDuration;
+}
+
+var generatePassword = module.exports.generatePassword = function() {
+    var length = 10;
+    var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var password = '';
+            for (var i = 0, n = charset.length; i < length; ++i) {
+                        password += charset.charAt(Math.floor(Math.random() * n));
+                            }
+                return password;
 }
