@@ -113,6 +113,7 @@ module.exports.signup = function(req,res) {
                         var token = uuid.v4();
                         var expirationTime = new Date().getTime() + config.activationLinkExpireTime;
                         dynamodb.putItem(new config.putParam(req.body.em, hash, token, expirationTime), function(err3, data) {
+                            console.log(err3);
                             if (err3) {
                                 if (err.code === "ConditionalCheckFailedException") {
                                     res.status(400).send({err: config.errorDic['userExist']});
