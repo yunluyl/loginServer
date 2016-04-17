@@ -301,7 +301,7 @@ module.exports.resendEmail = function(req, res) {
                     if (data1.Item.hasOwnProperty('tk')) {
                         var token = uuid.v4();
                         var expirationTime = new Date().getTime() + config.activationLinkExpireTime;
-                        dynamodb.putItem(new config.editParam(req.body.em, data1.Item.ph.S, token, expirationTime), function(err3, data2) {
+                        dynamodb.putItem(new config.editParam(req.session.em, data1.Item.ph.S, token, expirationTime), function(err3, data2) {
                             if (err3) {
                                res.status(500).send(err3); //{err: config.errorDic['AWSPutItem']}
                             }
