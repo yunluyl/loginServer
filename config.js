@@ -99,7 +99,7 @@ var putParam = module.exports.putParam = function(email,passwordHash,token,expir
         'em':{S:email},
         'ph':{S:passwordHash},
         'tk':{S:token},
-        'ep':{N:expirationTime}
+        'ep':{N:expirationTime.toString()}
     };
     this.ConditionExpression = 'attribute_not_exists(em)';
 }
@@ -128,7 +128,7 @@ var editParam = module.exports.editParam = function(email,passwordHash/*, passwo
     }
     else if (arguments.length === 4) {
         this.Item['tk'] = {S : arguments[2]};
-        this.Item['ep'] = {N : arguments[3]};
+        this.Item['ep'] = {N : arguments[3].toString()};
     }
     this.ConditionExpression = 'attribute_exists(em)';
 }
