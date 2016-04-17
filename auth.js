@@ -59,7 +59,7 @@ module.exports.login = function(req,res) {
                                                 });
                                             }
                                             else {
-                                                res.status(401).send({err: config.errDic['tempPasswordExpired']});
+                                                res.status(401).send({err: config.errorDic['tempPasswordExpired']});
                                             }
                                         }
                                         else {
