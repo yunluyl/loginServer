@@ -332,7 +332,7 @@ module.exports.resendEmail = function(req, res) {
     }
 }
 
-module.exports.logout = function(rep, res)
+module.exports.logout = function(req, res)
 {
     if (req.session && req.session.em)
     {
