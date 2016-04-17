@@ -245,6 +245,7 @@ module.exports.resetPassword = function(req, res) {
                 res.status(401).send({err: config.errorDic['wrongSignature']});
             }
         }
+    });
 }
 
 module.exports.changePassword = function(req, res) {
@@ -271,7 +272,7 @@ module.exports.changePassword = function(req, res) {
                                         }
                                     });
                                 }
-                            }
+                            });
                         }
                         else {
                             res.status(401).send({err: config.errorDic['wrongPassword']});

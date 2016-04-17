@@ -8,7 +8,7 @@ router.put('/signup', auth.signup);
 router.get('/activate', auth.activate);
 router.post('/reset', auth.resetPassword);
 router.post('/change', auth.changePassword);
-router.get('/resend', auth.resendEamil);
+router.get('/resend', auth.resendEmail);
 router.delete('logout', auth.logout);
 
 module.exports = router;
