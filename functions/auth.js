@@ -115,7 +115,7 @@ module.exports.signup = function(req,res) {
                         dynamodb.putItem(new config.putParam(req.body.em, hash, token, expirationTime), function(err3, data) {
                             console.log(err3);
                             if (err3) {
-                                if (err.code === "ConditionalCheckFailedException") {
+                                if (err3.code === "ConditionalCheckFailedException") {
                                     res.status(400).send({err: config.errorDic['userExist']});
                                 }
                                 else {
