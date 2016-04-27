@@ -1,3 +1,5 @@
+
+/* JS event queue
 function f() {
       console.log("foo");
         setTimeout(g, 0);
@@ -16,6 +18,7 @@ function h() {
 f();
 console.log('sdfd');
 h();
+*/
 /*
 console.log('a');
 process.nextTick(function() {console.log('b');});

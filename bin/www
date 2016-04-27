@@ -19,12 +19,11 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-
+var server = http.createServer();
 /**
  * Listen on provided port, on all network interfaces.
  */
-
+server.on('request', app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
